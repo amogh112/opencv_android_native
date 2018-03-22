@@ -12,7 +12,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 
-public class OpenCVCamera extends AppCompatActivity {
+public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2{
 
     private static final String TAG = "OpenCVCamera";
     private CameraBridgeViewBase cameraBridgeViewBase;
@@ -38,7 +38,7 @@ public class OpenCVCamera extends AppCompatActivity {
         setContentView(R.layout.activity_open_cvcamera);
         cameraBridgeViewBase = (CameraBridgeViewBase) findViewById(R.id.camera_view);
         cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
-        cameraBridgeViewBase.setCvCameraViewListener((CameraBridgeViewBase.CvCameraViewListener) this);//need to see
+        cameraBridgeViewBase.setCvCameraViewListener(this);//need to see
     }
 
     @Override
@@ -52,6 +52,7 @@ public class OpenCVCamera extends AppCompatActivity {
             baseLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
     }
+
     @Override
     public void onCameraViewStarted(int width, int height) {
 

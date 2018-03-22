@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:opencv="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_opencv_camera"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:context="com.example.amogh.opencvtry1.OpenCVCamera">
 
     <org.opencv.android.JavaCameraView
@@ -16,4 +16,6 @@
         opencv:show_fps="true"
         opencv:camera_id="any"/>
 
-</android.support.constraint.ConstraintLayout>
+
+
+</RelativeLayout>
