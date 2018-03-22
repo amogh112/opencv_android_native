@@ -31,6 +31,15 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        Button cameraInit2 = (Button) findViewById(R.id.cameraInit2);
+        cameraInit2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(getApplicationContext(),EdgeDetection.class);
+                startActivity(i);
+            }
+        });
     }
 
     /**

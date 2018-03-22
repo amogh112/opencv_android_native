@@ -38,7 +38,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".OpenCVCamera"></activity>
+        <activity android:name=".OpenCVCamera" />
+        <activity android:name=".EdgeDetection" />
     </application>
 
 </manifest>
