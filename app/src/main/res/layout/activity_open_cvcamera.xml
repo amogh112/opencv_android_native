@@ -4,6 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:opencv="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_opencv_camera"
     tools:context="com.example.amogh.opencvtry1.OpenCVCamera">
+
+    <org.opencv.android.JavaCameraView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:id="@+id/camera_view"
+        opencv:show_fps="true"
+        opencv:camera_id="any"/>
 
 </android.support.constraint.ConstraintLayout>
