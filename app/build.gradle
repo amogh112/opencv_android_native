@@ -18,7 +18,8 @@ android {
     }
     sourceSets {
         main {
-            jniLibs.srcDirs = ['E:/CMU/codeDrop1/app1/app/src/main/jniLibs'] //EDIT: Use your custom location to jniLibs. Path given is only for example purposes.
+            jniLibs.srcDirs = ['E:/CMU/codeDrop1/app1/app/src/main/jniLibs']
+            //EDIT: Use your custom location to jniLibs. Path given is only for example purposes.
         }
     }
     buildTypes {
