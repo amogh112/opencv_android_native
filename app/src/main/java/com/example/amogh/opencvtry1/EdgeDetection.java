@@ -84,16 +84,17 @@ public class EdgeDetection extends AppCompatActivity implements CameraBridgeView
         Mat src_im=inputFrame.rgba();
 //        cartoonify(edges.getNativeObjAddr(),src_im.getNativeObjAddr());
 //        detectEdges(edges.getNativeObjAddr());
-
-        float[] array3= new float[3];
-        array3=arrayOutput();
-        Log.d("tag",Float.toString(array3[0])+Float.toString(array3[1]));
+        float[] array3;
+        //amogh maybe need to define the size
+//        array3=arrayOutput();
+        array3=hogOutput(edges.getNativeObjAddr());
+        Log.d("tag",Float.toString(array3[0])+Float.toString(array3[1999]));
 //        hogOutput(src_im.getNativeObjAddr());
         return edges;
 
     }
-    public native float[] arrayOutput();
-    public native void hogOutput(long matSrc);
+//    public native float[] arrayOutput();
+    public native float[] hogOutput(long matGray);
     public native void detectEdges(long matGray);
 //    public native void cartoonify(long matGray,long matSrc);
 }
