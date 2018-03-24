@@ -81,10 +81,19 @@ public class EdgeDetection extends AppCompatActivity implements CameraBridgeView
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat edges = inputFrame.gray();
-        detectEdges(edges.getNativeObjAddr());
+        Mat src_im=inputFrame.rgba();
+//        cartoonify(edges.getNativeObjAddr(),src_im.getNativeObjAddr());
+//        detectEdges(edges.getNativeObjAddr());
+
+        float[] array3= new float[3];
+        array3=arrayOutput();
+        Log.d("tag",Float.toString(array3[0])+Float.toString(array3[1]));
+//        hogOutput(src_im.getNativeObjAddr());
         return edges;
 
     }
-
+    public native float[] arrayOutput();
+    public native void hogOutput(long matSrc);
     public native void detectEdges(long matGray);
+//    public native void cartoonify(long matGray,long matSrc);
 }
