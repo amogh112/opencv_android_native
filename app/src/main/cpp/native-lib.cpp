@@ -5,7 +5,7 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/ml.hpp>
-//#include <opencv2/>
+
 extern "C"
 JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_detectEdges(JNIEnv*, jobject, jlong gray){
     cv::Mat& edges= *(cv::Mat *) gray;
