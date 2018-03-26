@@ -21,6 +21,7 @@ package com.tzutalin.dlib;
  */
 
 import android.graphics.Point;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -114,6 +115,7 @@ public final class VisionDetRet {
      */
 
     public ArrayList<Point> getFaceLandmarks() {
+//        Log.d("landmarks", String.valueOf(mLandmarkPoints.size()));
         return mLandmarkPoints;
     }
 

@@ -14,6 +14,7 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.CvException;
 import org.opencv.core.Mat;
 import org.opencv.android.Utils;
@@ -24,6 +25,8 @@ import com.tzutalin.dlib.Constants;  //amogh added for dlib
 import com.tzutalin.dlib.FaceDet; //amogh added for dlib
 import com.tzutalin.dlib.VisionDetRet; //amogh added for dlib
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -56,6 +59,7 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
         cameraBridgeViewBase = (CameraBridgeViewBase) findViewById(R.id.camera_view);
         cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
         cameraBridgeViewBase.setCvCameraViewListener(this);//need to see
+        Log.d("landmarks_d", "status of file _____"+String.valueOf(new File(Constants.getFaceShapeModelPath()).exists())+"_____"+(Constants.getFaceShapeModelPath()));
         mFaceDet = new FaceDet(Constants.getFaceShapeModelPath());
         mContext = getApplicationContext();
     }
@@ -105,6 +109,11 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
         }
 //        TextView textViewToChange = (TextView) findViewById(R.id.textView);
 //        textViewToChange.setText("hello");
+//        Log.d("Exception", "status of file _____"+String.valueOf(new File(Constants.getFaceShapeModelPath()).exists())+"_____"+(Constants.getFaceShapeModelPath()));
+        if (!new File(Constants.getFaceShapeModelPath()).exists()) {
+            FileUtils.copyFileFromRawToOthers(mContext, R.raw.shape_predictor_68_face_landmarks, Constants.getFaceShapeModelPath());
+        }
+
 
         List<VisionDetRet> results;
         long startTime = System.currentTimeMillis();
@@ -122,7 +131,16 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
                 bounds.top = (int) (ret.getTop() * resizeRatio);
                 bounds.right = (int) (ret.getRight() * resizeRatio);
                 bounds.bottom = (int) (ret.getBottom() * resizeRatio);
-                Log.d("Exception", "_______face found_____left___"+String.valueOf(bounds.left)+"_____right_____"+String.valueOf(bounds.right));
+                Imgproc.rectangle(tmp,new Point((ret.getLeft() * resizeRatio),(ret.getBottom() * resizeRatio)),new Point((ret.getRight() * resizeRatio),(ret.getTop() * resizeRatio)),new Scalar(0,0,255));
+                ArrayList<android.graphics.Point> landmarks = ret.getFaceLandmarks();
+                Log.d("Exception","landmarks are ____"+landmarks.size());
+                for (android.graphics.Point point : landmarks) {
+                    Log.d("Exception","Point found ");
+                    float pointX = (point.x * resizeRatio);
+                    float pointY = (point.y * resizeRatio);
+                    Imgproc.circle(tmp,new Point(pointX,pointY),2,new Scalar(0,0,255),4);
+                }
+//                Log.d("Exception", "_______face found_____left___"+String.valueOf(bounds.left)+"_____right_____"+String.valueOf(bounds.right));
             }
         }
         return tmp;

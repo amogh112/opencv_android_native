@@ -39,6 +39,7 @@ public class FaceDet {
 
     public FaceDet(String landMarkPath) {
         mLandMarkPath = landMarkPath;
+        Log.d("landmarks", mLandMarkPath);
         jniInit(mLandMarkPath);
     }
 
@@ -53,6 +54,7 @@ public class FaceDet {
     @WorkerThread
     public List<VisionDetRet> detect(@NonNull Bitmap bitmap) {
         VisionDetRet[] detRets = jniBitmapDetect(bitmap);
+//        Log.d("landmarks", String.valueOf(detRets.length));
         return Arrays.asList(detRets);
     }
 

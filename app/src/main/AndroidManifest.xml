@@ -3,6 +3,8 @@
     package="com.example.amogh.opencvtry1">
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <supports-screens
         android:anyDensity="true"
