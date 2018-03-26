@@ -8,6 +8,7 @@ import android.view.SurfaceView;
 import android.view.WindowManager;
 import android.graphics.Rect;
 import android.graphics.Bitmap;
+import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -16,6 +17,8 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvException;
 import org.opencv.core.Mat;
 import org.opencv.android.Utils;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import com.tzutalin.dlib.Constants;  //amogh added for dlib
 import com.tzutalin.dlib.FaceDet; //amogh added for dlib
@@ -83,6 +86,14 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         Mat tmp = inputFrame.rgba();
+        //Drawing a Circle
+        Imgproc.circle (
+                tmp,                 //Matrix obj of the image
+                new Point(10, 10),    //Center of the circle
+                10,                    //Radius
+                new Scalar(0, 0, 255),  //Scalar object for color
+                10                      //Thickness of the circle
+        );
         Bitmap bmp = null;
         try {
             //Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_RGB2BGRA);
@@ -92,21 +103,28 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
         } catch (CvException e) {
             Log.d("Exception", e.getMessage());
         }
+//        TextView textViewToChange = (TextView) findViewById(R.id.textView);
+//        textViewToChange.setText("hello");
+
         List<VisionDetRet> results;
+        long startTime = System.currentTimeMillis();
         synchronized (OpenCVCamera.this) {
             results = mFaceDet.detect(bmp);
         }
-//        long endTime = System.currentTimeMillis();
-//        if (results != null) {
-//            for (final VisionDetRet ret : results) {
-//                float resizeRatio = 1.0f;
-//                Rect bounds = new Rect();
-//                bounds.left = (int) (ret.getLeft() * resizeRatio);
-//                bounds.top = (int) (ret.getTop() * resizeRatio);
-//                bounds.right = (int) (ret.getRight() * resizeRatio);
-//                bounds.bottom = (int) (ret.getBottom() * resizeRatio);
-//            }
-//        }
+        long endTime = System.currentTimeMillis();
+        if (results != null) {
+            Log.d("Exception", "_______face found____number____"+results.size()+"____"+String.valueOf((endTime - startTime) / 1000f));
+            for (final VisionDetRet ret : results) {
+                float resizeRatio = 1.0f;
+//                Log.d("Exception", "________rectangle found________");
+                Rect bounds = new Rect();
+                bounds.left = (int) (ret.getLeft() * resizeRatio);
+                bounds.top = (int) (ret.getTop() * resizeRatio);
+                bounds.right = (int) (ret.getRight() * resizeRatio);
+                bounds.bottom = (int) (ret.getBottom() * resizeRatio);
+                Log.d("Exception", "_______face found_____left___"+String.valueOf(bounds.left)+"_____right_____"+String.valueOf(bounds.right));
+            }
+        }
         return tmp;
     }
 }

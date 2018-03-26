@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -40,6 +41,7 @@ public class EdgeDetection extends AppCompatActivity implements CameraBridgeView
         cameraBridgeViewBase = (CameraBridgeViewBase) findViewById(R.id.camera_view2);
         cameraBridgeViewBase.setVisibility(SurfaceView.VISIBLE);
         cameraBridgeViewBase.setCvCameraViewListener(this);
+
 //        setContentView(R.layout.activity_edge_detection);
     }
 
