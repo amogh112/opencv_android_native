@@ -5,7 +5,10 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/ml.hpp>
-#include "tryadd.h"
+#include <opencv2/video.hpp>
+#include <stdlib.h>
+using namespace std;
+using namespace cv;
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_detectEdges(JNIEnv*, jobject, jlong gray){
@@ -13,6 +16,39 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_detectEdg
     cv::Canny(edges,edges,50,250);
 //    cv::ml::SVM::create();
 
+}
+
+//}
+extern "C"
+JNIEXPORT jfloatArray JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_hogOutput(JNIEnv* env, jobject, jlong gray){
+//    cv::Mat& edges= *(cv::Mat *) gray;
+    cv::Mat& src=*(cv::Mat *) gray; //this is not assigning the address, it means that src is an alias of the cv::Mat to which gray points (*gray.)
+//    cv::cvtColor(src,src,CV_RGBA2RGB);
+    cv::Size size=src.size();
+//    cv::Size smallSize;
+//    smallSize.width=100;
+//    smallSize.height=size.height/4;
+//    cv::Mat smallImg=cv::Mat(smallSize, CV_8UC3);
+    cv::HOGDescriptor hog(size,cv::Size(8,8),cv::Size(4,4),cv::Size(8,8),9,1,-1,0,0.2,0,64,1);
+    std::vector<float> descriptors;
+    hog.compute(src,descriptors);
+    int desc_size=descriptors.size();
+    jfloatArray result=env->NewFloatArray(desc_size);
+    if(result==NULL){
+        return NULL; //out of memory thrown
+    }
+    jfloat array2[desc_size];
+    for(int i=0;i<2000;i++){
+        array2[i]=descriptors[i];
+    }
+
+    env->SetFloatArrayRegion(result,0,2000,array2);
+//    jfloat array1[3];
+//    array1[0]=(float)desc_size;
+//    array1[1]=3.0f;
+//    array1[2]=4.0f;
+//    env->SetFloatArrayRegion(result,0,3,array1);
+    return result;
 }
 
 //extern "C"
@@ -52,38 +88,15 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_detectEdg
 //    resize(smallImg, bigImg, size, 0, 0, CV_INTER_LINEAR);
 //    cv::Mat dst; bigImg.copyTo(dst,mask);
 //    cv::medianBlur(dst, src, MEDIAN_BLUR_FILTER_SIZE-4);
-//}
-extern "C"
-JNIEXPORT jfloatArray JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_hogOutput(JNIEnv* env, jobject, jlong gray){
-//    cv::Mat& edges= *(cv::Mat *) gray;
-    cv::Mat& src=*(cv::Mat *) gray;
-//    cv::cvtColor(src,src,CV_RGBA2RGB);
-    cv::Size size=src.size();
-//    cv::Size smallSize;
-//    smallSize.width=100;
-//    smallSize.height=size.height/4;
-//    cv::Mat smallImg=cv::Mat(smallSize, CV_8UC3);
-    cv::HOGDescriptor hog(size,cv::Size(8,8),cv::Size(4,4),cv::Size(8,8),9,1,-1,0,0.2,0,64,1);
-    std::vector<float> descriptors;
-    hog.compute(src,descriptors);
-    int desc_size=descriptors.size();
-    jfloatArray result=env->NewFloatArray(desc_size);
-    if(result==NULL){
-        return NULL; //out of memory thrown
-    }
-    jfloat array2[desc_size];
-    for(int i=0;i<2000;i++){
-        array2[i]=descriptors[i];
-    }
 
-    env->SetFloatArrayRegion(result,0,2000,array2);
-//    jfloat array1[3];
-//    array1[0]=(float)desc_size;
-//    array1[1]=3.0f;
-//    array1[2]=4.0f;
-//    env->SetFloatArrayRegion(result,0,3,array1);
-    return result;
+extern "C"
+JNIEXPORT jstring JNICALL Java_com_example_amogh_opencvtry1_MainActivity_stringFromJNI(
+        JNIEnv *env,
+        jobject /* this */) {
+    std::string hello = "Hello from C++";
+    return env->NewStringUTF(hello.c_str());
 }
+
 
 /* trial function to test passing of array to Java, logs first two elements of an array
 extern "C"
@@ -101,19 +114,234 @@ JNIEXPORT jfloatArray JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_ar
     return result;
 }
 */
+void similarityTransform(std::vector<cv::Point2f>& inPoints, std::vector<cv::Point2f>& outPoints, cv::Mat &tform)
+{
 
-extern "C"
-JNIEXPORT jstring JNICALL Java_com_example_amogh_opencvtry1_MainActivity_stringFromJNI(
-        JNIEnv *env,
-        jobject /* this */) {
-    std::string hello = "Hello from C++";
-    return env->NewStringUTF(hello.c_str());
+    double s60 = sin(60 * M_PI / 180.0);
+    double c60 = cos(60 * M_PI / 180.0);
+
+    vector <cv::Point2f> inPts = inPoints;
+    vector <cv::Point2f> outPts = outPoints;
+
+    inPts.push_back(cv::Point2f(0,0));
+    outPts.push_back(cv::Point2f(0,0));
+
+
+    inPts[2].x =  c60 * (inPts[0].x - inPts[1].x) - s60 * (inPts[0].y - inPts[1].y) + inPts[1].x;
+    inPts[2].y =  s60 * (inPts[0].x - inPts[1].x) + c60 * (inPts[0].y - inPts[1].y) + inPts[1].y;
+
+    outPts[2].x =  c60 * (outPts[0].x - outPts[1].x) - s60 * (outPts[0].y - outPts[1].y) + outPts[1].x;
+    outPts[2].y =  s60 * (outPts[0].x - outPts[1].x) + c60 * (outPts[0].y - outPts[1].y) + outPts[1].y;
+
+
+    tform = cv::estimateRigidTransform(inPts, outPts, false);
 }
-extern "C"
-JNIEXPORT jint JNICALL
-Java_com_example_amogh_opencvtry1_EdgeDetection_tryAdd(JNIEnv *env, jobject instance) {
 
-    tryAdd a;
-//    int b=a.tryFunc();
-    return 1;
+// Calculate Delaunay triangles for set of points
+// Returns the vector of indices of 3 points for each triangle
+static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vector< vector<int> > &delaunayTri){
+
+    // Create an instance of Subdiv2D
+    Subdiv2D subdiv(rect);
+
+    // Insert points into subdiv
+    for( vector<Point2f>::iterator it = points.begin(); it != points.end(); it++)
+        subdiv.insert(*it);
+
+    vector<Vec6f> triangleList;
+    subdiv.getTriangleList(triangleList);
+    vector<Point2f> pt(3);
+    vector<int> ind(3);
+
+    for( size_t i = 0; i < triangleList.size(); i++ )
+    {
+        Vec6f t = triangleList[i];
+        pt[0] = Point2f(t[0], t[1]);
+        pt[1] = Point2f(t[2], t[3]);
+        pt[2] = Point2f(t[4], t[5 ]);
+
+        if ( rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])){
+            for(int j = 0; j < 3; j++)
+                for(size_t k = 0; k < points.size(); k++)
+                    if(abs(pt[j].x - points[k].x) < 1.0 && abs(pt[j].y - points[k].y) < 1)
+                        ind[j] = k;
+
+            delaunayTri.push_back(ind);
+        }
+    }
+
+}
+
+// Apply affine transform calculated using srcTri and dstTri to src
+void applyAffineTransform(Mat &warpImage, Mat &src, vector<Point2f> &srcTri, vector<Point2f> &dstTri)
+{
+    // Given a pair of triangles, find the affine transform.
+    Mat warpMat = getAffineTransform( srcTri, dstTri );
+
+    // Apply the Affine Transform just found to the src image
+    warpAffine( src, warpImage, warpMat, warpImage.size(), INTER_LINEAR, BORDER_REFLECT_101);
+}
+
+
+// Warps and alpha blends triangular regions from img1 and img2 to img
+void warpTriangle(Mat &img1, Mat &img2, vector<Point2f> t1, vector<Point2f> t2)
+{
+    // Find bounding rectangle for each triangle
+    Rect r1 = boundingRect(t1);
+    Rect r2 = boundingRect(t2);
+
+    // Offset points by left top corner of the respective rectangles
+    vector<Point2f> t1Rect, t2Rect;
+    vector<Point> t2RectInt;
+    for(int i = 0; i < 3; i++)
+    {
+        //tRect.push_back( Point2f( t[i].x - r.x, t[i].y -  r.y) );
+        t2RectInt.push_back( Point((int)(t2[i].x - r2.x), (int)(t2[i].y - r2.y)) ); // for fillConvexPoly
+
+        t1Rect.push_back( Point2f( t1[i].x - r1.x, t1[i].y -  r1.y) );
+        t2Rect.push_back( Point2f( t2[i].x - r2.x, t2[i].y - r2.y) );
+    }
+
+    // Get mask by filling triangle
+    Mat mask = Mat::zeros(r2.height, r2.width, CV_32FC3);
+    fillConvexPoly(mask, t2RectInt, Scalar(1.0, 1.0, 1.0), 16, 0);
+
+    // Apply warpImage to small rectangular patches
+    Mat img1Rect, img2Rect;
+    img1(r1).copyTo(img1Rect);
+
+    Mat warpImage = Mat::zeros(r2.height, r2.width, img1Rect.type());
+
+    applyAffineTransform(warpImage, img1Rect, t1Rect, t2Rect);
+
+    // Copy triangular region of the rectangular patch to the output image
+    multiply(warpImage,mask, warpImage);
+    multiply(img2(r2), Scalar(1.0,1.0,1.0) - mask, img2(r2));
+    img2(r2) = img2(r2) + warpImage;
+
+}
+
+// Constrains points to be inside boundary
+void constrainPoint(Point2f &p, Size sz)
+{
+    p.x = min(max( (double)p.x, 0.0), (double)(sz.width - 1));
+    p.y = min(max( (double)p.y, 0.0), (double)(sz.height - 1));
+
+}
+
+vector<Point2f> vectoriseLandmarks(jfloat landmarks[]){
+    vector<Point2f> lm;
+    for (int i=0;i<=134;i+=2) {
+        lm.push_back(Point2f(landmarks[i],landmarks[i+1]));
+    }
+    return lm;
+}
+
+
+void process(cv::Mat img, vector<Point2f> landmarksVec){
+    int w=112;
+    int h=112;
+    img.convertTo(img,CV_32FC3,1/255.0);
+    //defining the points for both the eyes.
+    //amogh - not all things need to be defined again, only the ones in loop, change code later
+    vector<Point2f> eyecornerDst, eyecornerSrc;
+    eyecornerDst.push_back(Point2f( 36.f, h/3));
+    eyecornerDst.push_back(Point2f( 76.f, h/3));
+    eyecornerSrc.push_back(Point2f(0,0));
+    eyecornerSrc.push_back(Point2f(0,0));
+    // Space for normalized images and points.
+    vector <Mat> imagesNorm; //amogh this should be outside the loop, stores things for all frames
+    vector < vector <Point2f> > pointsNorm;//amogh this should be outside the loop, stores things for all frames
+    // Space for average landmark points
+    vector <Point2f> pointsAvg(landmarksVec.size());
+    // 8 Boundary points for Delaunay Triangulation
+    vector <Point2f> boundaryPts;
+    boundaryPts.push_back(Point2f(0,0));
+    boundaryPts.push_back(Point2f(w/2, 0));
+    boundaryPts.push_back(Point2f(w-1,0));
+    boundaryPts.push_back(Point2f(w-1, h/2));
+    boundaryPts.push_back(Point2f(w-1, h-1));
+    boundaryPts.push_back(Point2f(w/2, h-1));
+    boundaryPts.push_back(Point2f(0, h-1));
+    boundaryPts.push_back(Point2f(0, h/2));
+
+    // Warp images and trasnform landmarks to output coordinate system,
+    // and find average of transformed landmarks.
+
+    // The corners of the eyes are the landmarks number 36 and 45
+        eyecornerSrc[0] = landmarksVec[36];
+        eyecornerSrc[1] = landmarksVec[45];
+
+        // Calculate similarity transform
+        Mat tform;
+        similarityTransform(eyecornerSrc, eyecornerDst, tform);
+
+        // Apply similarity transform to input image and landmarks
+        Mat newimg = Mat::zeros(h, w, CV_32FC3);
+        warpAffine(img, newimg, tform, newimg.size());
+        transform( landmarksVec, landmarksVec, tform);
+    //amogh add average points locations
+         //example code
+        // for ( size_t j = 0; j < points.size(); j++)
+//    {
+//        pointsAvg[j] += points[j] * ( 1.0 / numImages);
+//    }
+
+    // Append boundary points. Will be used in Delaunay Triangulation
+    for ( size_t j = 0; j < boundaryPts.size(); j++)
+    {
+        landmarksVec.push_back(boundaryPts[j]); //amogh change
+    }
+
+    pointsNorm.push_back(landmarksVec);
+    imagesNorm.push_back(img);
+    //amogh add the boundary point to the average image landmarks also
+    // Append boundary points to average points.
+//    for ( size_t j = 0; j < boundaryPts.size(); j++)
+//    {
+//        pointsAvg.push_back(boundaryPts[j]);
+//    }
+    // Calculate Delaunay triangles
+    Rect rect(0, 0, w, h);
+    vector< vector<int> > dt;
+    calculateDelaunayTriangles(rect, landmarksVec, dt);//amogh change
+
+    // Space for output image
+    Mat output = Mat::zeros(h, w, CV_32FC3);
+    Size size(w,h);
+
+    Mat newerimg = Mat::zeros(h, w, CV_32FC3);
+    // Transform triangles one by one
+    for(size_t j = 0; j < dt.size(); j++)
+    {
+        // Input and output points corresponding to jth triangle
+        vector<Point2f> tin, tout;
+        for(int k = 0; k < 3; k++)
+        {
+            Point2f pIn = pointsNorm[0][dt[j][k]]; //change
+            constrainPoint(pIn, size);
+
+            Point2f pOut = pointsAvg[dt[j][k]];
+            constrainPoint(pOut,size);
+
+            tin.push_back(pIn);
+            tout.push_back(pOut);
+        }
+
+        warpTriangle(imagesNorm[0], newerimg, tin, tout); //change
+    }
+
+    // Add image intensities for averaging
+    output = output + img;
+
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPointsToNative(JNIEnv* env, jobject self, jfloatArray input, jlong im){
+    jfloat landmarks[136];
+    jfloat* landmarkPoint=env->GetFloatArrayElements(input,0);
+    cv::Mat& src=*(cv::Mat *) im;
+    vector<Point2f> landmarksVec=vectoriseLandmarks(landmarks);
+    process(src,landmarksVec);
+
 }

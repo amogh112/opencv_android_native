@@ -20,14 +20,18 @@ import org.opencv.core.Mat;
 import org.opencv.android.Utils;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import com.tzutalin.dlib.Constants;  //amogh added for dlib
 import com.tzutalin.dlib.FaceDet; //amogh added for dlib
 import com.tzutalin.dlib.VisionDetRet; //amogh added for dlib
+//import org.opencv.features2d.res
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.opencv.core.Core.FONT_HERSHEY_COMPLEX_SMALL;
 
 
 public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewBase.CvCameraViewListener2 {
@@ -98,6 +102,9 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
                 new Scalar(0, 0, 255),  //Scalar object for color
                 10                      //Thickness of the circle
         );
+        Log.d("check", String.valueOf(tmp.cols()));
+        Log.d("check", String.valueOf(tmp.rows()));
+
         Bitmap bmp = null;
         try {
             //Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_RGB2BGRA);
@@ -134,15 +141,27 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
                 Imgproc.rectangle(tmp,new Point((ret.getLeft() * resizeRatio),(ret.getBottom() * resizeRatio)),new Point((ret.getRight() * resizeRatio),(ret.getTop() * resizeRatio)),new Scalar(0,0,255));
                 ArrayList<android.graphics.Point> landmarks = ret.getFaceLandmarks();
 //                Log.d("Exception","landmarks are ____"+landmarks.size());
+                int i=0;
+                float[] arrayToNative=new float[136];
                 for (android.graphics.Point point : landmarks) {
 //                    Log.d("Exception","Point found ");
                     float pointX = (point.x * resizeRatio);
                     float pointY = (point.y * resizeRatio);
-                    Imgproc.circle(tmp,new Point(pointX,pointY),2,new Scalar(0,0,255),4);
+                    arrayToNative[i]=pointX;
+                    arrayToNative[i+1]=pointY;
+                    if(i==36 || i==45){
+                    Imgproc.circle(tmp,new Point(pointX,pointY),2,new Scalar(0,0,255),4);}
+                    i+=2;
+//                    Imgproc.putText(tmp, (Integer.toString(i++)), new Point(30,30),
+//                            FONT_HERSHEY_COMPLEX_SMALL, 0.8, new Scalar(200,200,250), 1);
                 }
+                transferPointsToNative(arrayToNative,tmp.getNativeObjAddr());
 //                Log.d("Exception", "_______face found_____left___"+String.valueOf(bounds.left)+"_____right_____"+String.valueOf(bounds.right));
             }
         }
+//        Mat dst = null;
+//        Imgproc.resize(tmp,dst, new Size(112,112));
         return tmp;
     }
+    public native void transferPointsToNative(float[] input, long im);
 }
