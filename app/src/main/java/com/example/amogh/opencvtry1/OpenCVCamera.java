@@ -90,7 +90,7 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         Mat tmp = inputFrame.rgba();
-        //Drawing a Circle
+        //Drawing a Circle(just to debug)
         Imgproc.circle (
                 tmp,                 //Matrix obj of the image
                 new Point(10, 10),    //Center of the circle
@@ -122,7 +122,7 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
         }
         long endTime = System.currentTimeMillis();
         if (results != null) {
-            Log.d("Exception", "_______face found____number____"+results.size()+"____"+String.valueOf((endTime - startTime) / 1000f));
+//            Log.d("Exception", "_______face found____number____"+results.size()+"____"+String.valueOf((endTime - startTime) / 1000f));
             for (final VisionDetRet ret : results) {
                 float resizeRatio = 1.0f;
 //                Log.d("Exception", "________rectangle found________");
@@ -133,9 +133,9 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
                 bounds.bottom = (int) (ret.getBottom() * resizeRatio);
                 Imgproc.rectangle(tmp,new Point((ret.getLeft() * resizeRatio),(ret.getBottom() * resizeRatio)),new Point((ret.getRight() * resizeRatio),(ret.getTop() * resizeRatio)),new Scalar(0,0,255));
                 ArrayList<android.graphics.Point> landmarks = ret.getFaceLandmarks();
-                Log.d("Exception","landmarks are ____"+landmarks.size());
+//                Log.d("Exception","landmarks are ____"+landmarks.size());
                 for (android.graphics.Point point : landmarks) {
-                    Log.d("Exception","Point found ");
+//                    Log.d("Exception","Point found ");
                     float pointX = (point.x * resizeRatio);
                     float pointY = (point.y * resizeRatio);
                     Imgproc.circle(tmp,new Point(pointX,pointY),2,new Scalar(0,0,255),4);

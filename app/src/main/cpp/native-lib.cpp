@@ -5,6 +5,7 @@
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/objdetect.hpp>
 #include <opencv2/ml.hpp>
+#include "tryadd.h"
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_detectEdges(JNIEnv*, jobject, jlong gray){
@@ -107,4 +108,12 @@ JNIEXPORT jstring JNICALL Java_com_example_amogh_opencvtry1_MainActivity_stringF
         jobject /* this */) {
     std::string hello = "Hello from C++";
     return env->NewStringUTF(hello.c_str());
+}
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_example_amogh_opencvtry1_EdgeDetection_tryAdd(JNIEnv *env, jobject instance) {
+
+    tryAdd a;
+//    int b=a.tryFunc();
+    return 1;
 }
