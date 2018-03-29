@@ -7,6 +7,8 @@
 #include <opencv2/ml.hpp>
 #include <opencv2/video.hpp>
 #include <stdlib.h>
+#include <android/log.h>
+#include<sstream>
 using namespace std;
 using namespace cv;
 
@@ -143,15 +145,22 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
 
     // Create an instance of Subdiv2D
     Subdiv2D subdiv(rect);
+//    __android_log_write(ANDROID_LOG_ERROR, "newtry", "Inside calcDelaunayTriangle, subdiv2d initiated");
 
     // Insert points into subdiv
-    for( vector<Point2f>::iterator it = points.begin(); it != points.end(); it++)
+    for( vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
         subdiv.insert(*it);
+        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "the points are %f %f", (*it).x,
+                            (*it).y);
+    }
+
+//    __android_log_write(ANDROID_LOG_ERROR, "newtry", "inserted! inside delaunaytriangle");
 
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
     vector<Point2f> pt(3);
     vector<int> ind(3);
+//    __android_log_write(ANDROID_LOG_ERROR, "newtry", "going inside theloop");
 
     for( size_t i = 0; i < triangleList.size(); i++ )
     {
@@ -159,17 +168,18 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
         pt[0] = Point2f(t[0], t[1]);
         pt[1] = Point2f(t[2], t[3]);
         pt[2] = Point2f(t[4], t[5 ]);
+        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "there are %d triangles the points of triangle are: %f %f %f %f %f %f",triangleList.size(),t[0],t[1],t[2],t[3],t[4],t[5]);
+
 
         if ( rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])){
             for(int j = 0; j < 3; j++)
                 for(size_t k = 0; k < points.size(); k++)
                     if(abs(pt[j].x - points[k].x) < 1.0 && abs(pt[j].y - points[k].y) < 1)
-                        ind[j] = k;
+                        ind[j] = k; //basically the index of nearest landmark
 
-            delaunayTri.push_back(ind);
+            delaunayTri.push_back(ind);// delaunayTri(vector<vector<int>>)
         }
     }
-
 }
 
 // Apply affine transform calculated using srcTri and dstTri to src
@@ -229,13 +239,13 @@ void constrainPoint(Point2f &p, Size sz)
 
 }
 
-vector<Point2f> vectoriseLandmarks(jfloat landmarks[]){
-    vector<Point2f> lm;
-    for (int i=0;i<=134;i+=2) {
-        lm.push_back(Point2f(landmarks[i],landmarks[i+1]));
-    }
-    return lm;
-}
+//vector<Point2f> vectoriseLandmarks(jfloat landmarks[]){
+//    vector<Point2f> lm;
+//    for (int i=0;i<=134;i+=2) {
+//        lm.push_back(Point2f(landmarks[i],landmarks[i+1]));
+//    }
+//    return lm;
+//}
 
 
 void process(cv::Mat img, vector<Point2f> landmarksVec){
@@ -245,11 +255,14 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
     //defining the points for both the eyes.
     //amogh - not all things need to be defined again, only the ones in loop, change code later
     vector<Point2f> eyecornerDst, eyecornerSrc;
-    eyecornerDst.push_back(Point2f( 36.f, h/3));
-    eyecornerDst.push_back(Point2f( 76.f, h/3));
+    eyecornerDst.push_back(Point2f(36.f, h/3));
+    eyecornerDst.push_back(Point2f(76.f, h/3));
     eyecornerSrc.push_back(Point2f(0,0));
     eyecornerSrc.push_back(Point2f(0,0));
     // Space for normalized images and points.
+    __android_log_write(ANDROID_LOG_ERROR, "newtry", "eye corners pushed");
+
+
     vector <Mat> imagesNorm; //amogh this should be outside the loop, stores things for all frames
     vector < vector <Point2f> > pointsNorm;//amogh this should be outside the loop, stores things for all frames
     // Space for average landmark points
@@ -264,6 +277,7 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
     boundaryPts.push_back(Point2f(w/2, h-1));
     boundaryPts.push_back(Point2f(0, h-1));
     boundaryPts.push_back(Point2f(0, h/2));
+    __android_log_write(ANDROID_LOG_ERROR, "newtry", "Boundary points pushed");
 
     // Warp images and trasnform landmarks to output coordinate system,
     // and find average of transformed landmarks.
@@ -275,22 +289,27 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
         // Calculate similarity transform
         Mat tform;
         similarityTransform(eyecornerSrc, eyecornerDst, tform);
+    __android_log_write(ANDROID_LOG_ERROR, "newtry", "Similarity transform obtained");
 
         // Apply similarity transform to input image and landmarks
         Mat newimg = Mat::zeros(h, w, CV_32FC3);
         warpAffine(img, newimg, tform, newimg.size());
-        transform( landmarksVec, landmarksVec, tform);
+    __android_log_write(ANDROID_LOG_ERROR, "newtry", "Warp affine done");
+
+    transform( landmarksVec, landmarksVec, tform);
+    __android_log_write(ANDROID_LOG_ERROR, "newtry", "transformed!");
+
     //amogh add average points locations
          //example code
         // for ( size_t j = 0; j < points.size(); j++)
 //    {
 //        pointsAvg[j] += points[j] * ( 1.0 / numImages);
 //    }
-
+    pointsAvg=landmarksVec;
     // Append boundary points. Will be used in Delaunay Triangulation
     for ( size_t j = 0; j < boundaryPts.size(); j++)
     {
-        landmarksVec.push_back(boundaryPts[j]); //amogh change
+        pointsAvg.push_back(boundaryPts[j]); //amogh change
     }
 
     pointsNorm.push_back(landmarksVec);
@@ -304,7 +323,8 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
     // Calculate Delaunay triangles
     Rect rect(0, 0, w, h);
     vector< vector<int> > dt;
-    calculateDelaunayTriangles(rect, landmarksVec, dt);//amogh change
+    calculateDelaunayTriangles(rect, pointsAvg, dt);//amogh change
+    __android_log_write(ANDROID_LOG_ERROR, "newtry", "Delaunay triangles calculated");
 
     // Space for output image
     Mat output = Mat::zeros(h, w, CV_32FC3);
@@ -338,10 +358,23 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPointsToNative(JNIEnv* env, jobject self, jfloatArray input, jlong im){
-    jfloat landmarks[136];
+
     jfloat* landmarkPoint=env->GetFloatArrayElements(input,0);
     cv::Mat& src=*(cv::Mat *) im;
-    vector<Point2f> landmarksVec=vectoriseLandmarks(landmarks);
+//    __android_log_print(ANDROID_LOG_INFO, "newnew", "the points are %f %f",landmarkPoint[0],landmarkPoint[1]);
+
+    vector<Point2f> landmarksVec;
+    for (int i=0;i<=134;i+=2) {
+        landmarksVec.push_back(Point2f(landmarkPoint[i],landmarkPoint[i+1]));
+    }
+
+        __android_log_write(ANDROID_LOG_ERROR, "checkvec", "____Landmarks vectorised_____");
+        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[0].x,landmarksVec[0].y );
+        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[1].x,landmarksVec[1].y );
+        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[45].x,landmarksVec[45].y );
+        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[66].x,landmarksVec[66].y );
+
     process(src,landmarksVec);
+    __android_log_write(ANDROID_LOG_ERROR, "newtry", "Complete Processing Done");
 
 }

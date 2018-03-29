@@ -155,6 +155,7 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
 //                    Imgproc.putText(tmp, (Integer.toString(i++)), new Point(30,30),
 //                            FONT_HERSHEY_COMPLEX_SMALL, 0.8, new Scalar(200,200,250), 1);
                 }
+                Log.d("checkvec",arrayToNative[0]+"__"+arrayToNative[1]+"__"+arrayToNative[2]+"__"+arrayToNative[3]+"__"+arrayToNative[0]+"__");
                 transferPointsToNative(arrayToNative,tmp.getNativeObjAddr());
 //                Log.d("Exception", "_______face found_____left___"+String.valueOf(bounds.left)+"_____right_____"+String.valueOf(bounds.right));
             }
