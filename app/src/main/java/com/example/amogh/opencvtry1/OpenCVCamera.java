@@ -9,7 +9,10 @@ import android.view.WindowManager;
 import android.graphics.Rect;
 import android.graphics.Bitmap;
 import android.widget.TextView;
+import android.util.JsonWriter;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
@@ -26,6 +29,7 @@ import com.tzutalin.dlib.FaceDet; //amogh added for dlib
 import com.tzutalin.dlib.VisionDetRet; //amogh added for dlib
 
 import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +40,7 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
     private CameraBridgeViewBase cameraBridgeViewBase;
     private Context mContext;
     private FaceDet mFaceDet;
+
 
     private BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -86,46 +91,49 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
 
     }
 
+//    public void writeJSON(){ //writing a json
+//        JSONObject object=new JSONObject();
+//        try{
+//            object.put();
+//
+//        } catch(JSONException e){
+//            e.printStackTrace();
+//        }
+//    }
+
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         Mat tmp = inputFrame.rgba();
-        //Drawing a Circle
-        Imgproc.circle (
-                tmp,                 //Matrix obj of the image
-                new Point(10, 10),    //Center of the circle
-                10,                    //Radius
-                new Scalar(0, 0, 255),  //Scalar object for color
-                10                      //Thickness of the circle
-        );
+        //Drawing a Circle(not necessary, for debugging only)
+//        Imgproc.circle (
+//                tmp,                 //Matrix obj of the image
+//                new Point(10, 10),    //Center of the circle
+//                10,                    //Radius
+//                new Scalar(0, 0, 255),  //Scalar object for color
+//                10                      //Thickness of the circle
+//        );
         Bitmap bmp = null;
         try {
-            //Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_RGB2BGRA);
-//            Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_GRAY2RGBA, 4);
             bmp = Bitmap.createBitmap(tmp.cols(), tmp.rows(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(tmp, bmp);
         } catch (CvException e) {
             Log.d("Exception", e.getMessage());
         }
-//        TextView textViewToChange = (TextView) findViewById(R.id.textView);
-//        textViewToChange.setText("hello");
-//        Log.d("Exception", "status of file _____"+String.valueOf(new File(Constants.getFaceShapeModelPath()).exists())+"_____"+(Constants.getFaceShapeModelPath()));
+//        Log.d("Exception", "status of file _____"+String.valueOf(new File(Constants.getFaceShapeModelPath()).exists())+"_____"+(Constants.getFaceShapeModelPath())); //checking if the landmark file exists
         if (!new File(Constants.getFaceShapeModelPath()).exists()) {
             FileUtils.copyFileFromRawToOthers(mContext, R.raw.shape_predictor_68_face_landmarks, Constants.getFaceShapeModelPath());
         }
 
-
         List<VisionDetRet> results;
-        long startTime = System.currentTimeMillis();
         synchronized (OpenCVCamera.this) {
             results = mFaceDet.detect(bmp);
         }
-        long endTime = System.currentTimeMillis();
         if (results != null) {
-            Log.d("Exception", "_______face found____number____"+results.size()+"____"+String.valueOf((endTime - startTime) / 1000f));
+//            Log.d("Exception", "_______face found____number____"+results.size()+"____"+String.valueOf((endTime - startTime) / 1000f));
             for (final VisionDetRet ret : results) {
                 float resizeRatio = 1.0f;
-//                Log.d("Exception", "________rectangle found________");
+                Log.d("Exception", "________rectangle found________");
                 Rect bounds = new Rect();
                 bounds.left = (int) (ret.getLeft() * resizeRatio);
                 bounds.top = (int) (ret.getTop() * resizeRatio);
@@ -133,9 +141,9 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
                 bounds.bottom = (int) (ret.getBottom() * resizeRatio);
                 Imgproc.rectangle(tmp,new Point((ret.getLeft() * resizeRatio),(ret.getBottom() * resizeRatio)),new Point((ret.getRight() * resizeRatio),(ret.getTop() * resizeRatio)),new Scalar(0,0,255));
                 ArrayList<android.graphics.Point> landmarks = ret.getFaceLandmarks();
-                Log.d("Exception","landmarks are ____"+landmarks.size());
+//                Log.d("Exception","landmarks are ____"+landmarks.size());
                 for (android.graphics.Point point : landmarks) {
-                    Log.d("Exception","Point found ");
+//                    Log.d("Exception","Point found ");
                     float pointX = (point.x * resizeRatio);
                     float pointY = (point.y * resizeRatio);
                     Imgproc.circle(tmp,new Point(pointX,pointY),2,new Scalar(0,0,255),4);
