@@ -150,8 +150,8 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
     // Insert points into subdiv
     for( vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
         subdiv.insert(*it);
-        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "the points are %f %f", (*it).x,
-                            (*it).y);
+//        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "the points are %f %f", (*it).x,
+//                            (*it).y);
     }
 
 //    __android_log_write(ANDROID_LOG_ERROR, "newtry", "inserted! inside delaunaytriangle");
@@ -168,7 +168,7 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
         pt[0] = Point2f(t[0], t[1]);
         pt[1] = Point2f(t[2], t[3]);
         pt[2] = Point2f(t[4], t[5 ]);
-        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "there are %d triangles the points of triangle are: %f %f %f %f %f %f",triangleList.size(),t[0],t[1],t[2],t[3],t[4],t[5]);
+//        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "there are %d triangles the points of triangle are: %f %f %f %f %f %f",triangleList.size(),t[0],t[1],t[2],t[3],t[4],t[5]);
 
 
         if ( rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])){
@@ -176,8 +176,15 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
                 for(size_t k = 0; k < points.size(); k++)
                     if(abs(pt[j].x - points[k].x) < 1.0 && abs(pt[j].y - points[k].y) < 1)
                         ind[j] = k; //basically the index of nearest landmark
+//            __android_log_print(ANDROID_LOG_INFO, "newnew", "found true %d", i);
+
+//            __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "landmarks forming triangle: %f %f %f",ind[0],ind[1],ind[1]);
 
             delaunayTri.push_back(ind);// delaunayTri(vector<vector<int>>)
+        }
+        else{ //amogh added, to be removed
+//            __android_log_print(ANDROID_LOG_INFO, "newnew", "outside");
+
         }
     }
 }
@@ -197,8 +204,11 @@ void applyAffineTransform(Mat &warpImage, Mat &src, vector<Point2f> &srcTri, vec
 void warpTriangle(Mat &img1, Mat &img2, vector<Point2f> t1, vector<Point2f> t2)
 {
     // Find bounding rectangle for each triangle
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "beginning checkwarp");
+
     Rect r1 = boundingRect(t1);
     Rect r2 = boundingRect(t2);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "rect initialised");
 
     // Offset points by left top corner of the respective rectangles
     vector<Point2f> t1Rect, t2Rect;
@@ -207,14 +217,25 @@ void warpTriangle(Mat &img1, Mat &img2, vector<Point2f> t1, vector<Point2f> t2)
     {
         //tRect.push_back( Point2f( t[i].x - r.x, t[i].y -  r.y) );
         t2RectInt.push_back( Point((int)(t2[i].x - r2.x), (int)(t2[i].y - r2.y)) ); // for fillConvexPoly
-
         t1Rect.push_back( Point2f( t1[i].x - r1.x, t1[i].y -  r1.y) );
         t2Rect.push_back( Point2f( t2[i].x - r2.x, t2[i].y - r2.y) );
     }
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %f %f",t1Rect[0].x,t2Rect[0].x);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %f %f",t1Rect[1].x,t2Rect[1].x);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %f %f",t1Rect[2].x,t2Rect[2].x);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %f %f",t1Rect[0].y,t2Rect[0].y);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %f %f",t1Rect[1].y,t2Rect[1].y);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %f %f",t1Rect[2].y,t2Rect[2].y);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %d %d",t2RectInt[0].x,t2Rect[0].y);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %d %d",t2RectInt[1].x,t2Rect[1].y);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %d %d",t2RectInt[2].x,t2Rect[2].y);
+
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "new rect ready");
 
     // Get mask by filling triangle
     Mat mask = Mat::zeros(r2.height, r2.width, CV_32FC3);
-    fillConvexPoly(mask, t2RectInt, Scalar(1.0, 1.0, 1.0), 16, 0);
+    fillConvexPoly(mask, t2RectInt, Scalar(1.0, 1.0, 1.0), 16, 0);//mask is an image, and the polygon made by t2RectInt si going to be filled.
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "convexPoly filled");
 
     // Apply warpImage to small rectangular patches
     Mat img1Rect, img2Rect;
@@ -223,11 +244,17 @@ void warpTriangle(Mat &img1, Mat &img2, vector<Point2f> t1, vector<Point2f> t2)
     Mat warpImage = Mat::zeros(r2.height, r2.width, img1Rect.type());
 
     applyAffineTransform(warpImage, img1Rect, t1Rect, t2Rect);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "rect affine transform applied");
 
     // Copy triangular region of the rectangular patch to the output image
     multiply(warpImage,mask, warpImage);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "mult1 done");
+
     multiply(img2(r2), Scalar(1.0,1.0,1.0) - mask, img2(r2));
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "mult2 done");
+
     img2(r2) = img2(r2) + warpImage;
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "finalimg calculated");
 
 }
 
@@ -249,8 +276,8 @@ void constrainPoint(Point2f &p, Size sz)
 
 
 void process(cv::Mat img, vector<Point2f> landmarksVec){
-    int w=112;
-    int h=112;
+    int w=400;
+    int h=400;
     img.convertTo(img,CV_32FC3,1/255.0);
     //defining the points for both the eyes.
     //amogh - not all things need to be defined again, only the ones in loop, change code later
@@ -293,10 +320,10 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
 
         // Apply similarity transform to input image and landmarks
         Mat newimg = Mat::zeros(h, w, CV_32FC3);
-        warpAffine(img, newimg, tform, newimg.size());
+        warpAffine(img, newimg, tform, newimg.size());//this is to transform the image such that the eyes are aligned and in a smaller frame
     __android_log_write(ANDROID_LOG_ERROR, "newtry", "Warp affine done");
 
-    transform( landmarksVec, landmarksVec, tform);
+    transform( landmarksVec, landmarksVec, tform); //these are the transformed points when the eyes are aligned. and the size is smaller
     __android_log_write(ANDROID_LOG_ERROR, "newtry", "transformed!");
 
     //amogh add average points locations
@@ -313,7 +340,7 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
     }
 
     pointsNorm.push_back(landmarksVec);
-    imagesNorm.push_back(img);
+    imagesNorm.push_back(newimg);
     //amogh add the boundary point to the average image landmarks also
     // Append boundary points to average points.
 //    for ( size_t j = 0; j < boundaryPts.size(); j++)
@@ -322,8 +349,8 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
 //    }
     // Calculate Delaunay triangles
     Rect rect(0, 0, w, h);
-    vector< vector<int> > dt;
-    calculateDelaunayTriangles(rect, pointsAvg, dt);//amogh change
+    vector< vector<int> > dt;//contains the number id of the landmarks which form triangles
+    calculateDelaunayTriangles(rect, pointsAvg, dt);//Delaunay triangles are calculated and stored in dt //amogh change
     __android_log_write(ANDROID_LOG_ERROR, "newtry", "Delaunay triangles calculated");
 
     // Space for output image
@@ -347,12 +374,15 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
             tin.push_back(pIn);
             tout.push_back(pOut);
         }
+//        __android_log_print(ANDROID_LOG_INFO, "newtry", "the size of pin and pout is %f %f",tout[0].x,tout[0].y);
+//        __android_log_print(ANDROID_LOG_INFO, "newtry", "the size of pin and pout is %f %f",tout[1].x,tout[1].y);
+        __android_log_print(ANDROID_LOG_INFO, "newtry", "starting to try warp on triangle %d and the sizes are: ",j);
+        warpTriangle(imagesNorm[0], newerimg, tin, tout); //change will be warped for each triangle.
+        __android_log_print(ANDROID_LOG_INFO, "newtry", "warp done on this triangle");
 
-        warpTriangle(imagesNorm[0], newerimg, tin, tout); //change
     }
-
     // Add image intensities for averaging
-    output = output + img;
+    output = output + newerimg;
 
 }
 
@@ -369,10 +399,10 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
     }
 
         __android_log_write(ANDROID_LOG_ERROR, "checkvec", "____Landmarks vectorised_____");
-        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[0].x,landmarksVec[0].y );
-        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[1].x,landmarksVec[1].y );
-        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[45].x,landmarksVec[45].y );
-        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[66].x,landmarksVec[66].y );
+//        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[0].x,landmarksVec[0].y );
+//        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[1].x,landmarksVec[1].y );
+//        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[45].x,landmarksVec[45].y );
+//        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[66].x,landmarksVec[66].y );
 
     process(src,landmarksVec);
     __android_log_write(ANDROID_LOG_ERROR, "newtry", "Complete Processing Done");
