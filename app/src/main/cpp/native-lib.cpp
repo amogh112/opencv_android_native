@@ -182,10 +182,7 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
 
             delaunayTri.push_back(ind);// delaunayTri(vector<vector<int>>)
         }
-        else{ //amogh added, to be removed
-//            __android_log_print(ANDROID_LOG_INFO, "newnew", "outside");
 
-        }
     }
 }
 
