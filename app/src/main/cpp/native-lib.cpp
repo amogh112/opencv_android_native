@@ -208,7 +208,13 @@ void warpTriangle(Mat &img1, Mat &img2, vector<Point2f> t1, vector<Point2f> t2)
 
     Rect r1 = boundingRect(t1);
     Rect r2 = boundingRect(t2);
-    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "rect initialised");
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "t1 has: %f, %f,%f, %f,%f, %f", t1[0].x,t1[0].y,t1[1].x,t1[1].y,t1[2].x,t1[2].y);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "t2 has: %f, %f,%f, %f,%f, %f", t2[0].x,t2[0].y,t2[1].x,t2[1].y,t2[2].x,t2[2].y);
+
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "rect initialised r1 top left is: %f, %f", r1.tl().x,r1.tl().y);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "rect initialised r1 bottom right is: %f, %f", r1.br().x,r1.br().y);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "rect initialised r2 top left is: %f, %f", r2.tl().x,r2.tl().y);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "rect initialised r2 bottom right is: %f, %f", r2.br().x,r2.br().y);
 
     // Offset points by left top corner of the respective rectangles
     vector<Point2f> t1Rect, t2Rect;
@@ -217,8 +223,12 @@ void warpTriangle(Mat &img1, Mat &img2, vector<Point2f> t1, vector<Point2f> t2)
     {
         //tRect.push_back( Point2f( t[i].x - r.x, t[i].y -  r.y) );
         t2RectInt.push_back( Point((int)(t2[i].x - r2.x), (int)(t2[i].y - r2.y)) ); // for fillConvexPoly
+        __android_log_print(ANDROID_LOG_INFO, "checkwarp", "1. pushing in t2RectInt: %d, %d", (int)(t2[i].x - r2.x), (int)(t2[i].y - r2.y));
         t1Rect.push_back( Point2f( t1[i].x - r1.x, t1[i].y -  r1.y) );
+        __android_log_print(ANDROID_LOG_INFO, "checkwarp", "2. pushing in t1Rect: %f, %f", t1[i].x - r1.x, t1[i].y -  r1.y);
         t2Rect.push_back( Point2f( t2[i].x - r2.x, t2[i].y - r2.y) );
+        __android_log_print(ANDROID_LOG_INFO, "checkwarp", "3. pushing in t2Rect: %f, %f", t2[i].x - r2.x, t2[i].y - r2.y);
+
     }
     __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %f %f",t1Rect[0].x,t2Rect[0].x);
     __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of pin and pout is %f %f",t1Rect[1].x,t2Rect[1].x);
@@ -245,6 +255,8 @@ void warpTriangle(Mat &img1, Mat &img2, vector<Point2f> t1, vector<Point2f> t2)
 
     applyAffineTransform(warpImage, img1Rect, t1Rect, t2Rect);
     __android_log_print(ANDROID_LOG_INFO, "checkwarp", "rect affine transform applied");
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of warpImage is %d %d %d",warpImage.size[0],warpImage.size[1],warpImage.size[2]);
+    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "the size of warpImage is %d %d %d",mask.size[0],mask.size[1],mask.size[2]);
 
     // Copy triangular region of the rectangular patch to the output image
     multiply(warpImage,mask, warpImage);
@@ -282,8 +294,11 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
     //defining the points for both the eyes.
     //amogh - not all things need to be defined again, only the ones in loop, change code later
     vector<Point2f> eyecornerDst, eyecornerSrc;
-    eyecornerDst.push_back(Point2f(36.f, h/3));
-    eyecornerDst.push_back(Point2f(76.f, h/3));
+//    eyecornerDst.push_back(Point2f(36.f, h/3));
+//    eyecornerDst.push_back(Point2f(76.f, h/3));
+    eyecornerDst.push_back(Point2f( 0.3*w, h/3));
+    eyecornerDst.push_back(Point2f( 0.7*w, h/3));
+
     eyecornerSrc.push_back(Point2f(0,0));
     eyecornerSrc.push_back(Point2f(0,0));
     // Space for normalized images and points.
@@ -338,6 +353,10 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
     {
         pointsAvg.push_back(boundaryPts[j]); //amogh change
     }
+    for ( size_t j = 0; j < boundaryPts.size(); j++)
+    {
+        landmarksVec.push_back(boundaryPts[j]); //amogh change
+    }
 
     pointsNorm.push_back(landmarksVec);
     imagesNorm.push_back(newimg);
@@ -376,7 +395,7 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
         }
 //        __android_log_print(ANDROID_LOG_INFO, "newtry", "the size of pin and pout is %f %f",tout[0].x,tout[0].y);
 //        __android_log_print(ANDROID_LOG_INFO, "newtry", "the size of pin and pout is %f %f",tout[1].x,tout[1].y);
-        __android_log_print(ANDROID_LOG_INFO, "newtry", "starting to try warp on triangle %d and the sizes are: ",j);
+        __android_log_print(ANDROID_LOG_INFO, "newtry", "starting to try warp on triangle %d and the sizes are: %d,%d,%d,%d",j,imagesNorm[0].size[0],newerimg.size[0],tin.size(),tout.size());
         warpTriangle(imagesNorm[0], newerimg, tin, tout); //change will be warped for each triangle.
         __android_log_print(ANDROID_LOG_INFO, "newtry", "warp done on this triangle");
 
