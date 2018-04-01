@@ -201,7 +201,7 @@ void applyAffineTransform(Mat &warpImage, Mat &src, vector<Point2f> &srcTri, vec
 void warpTriangle(Mat &img1, Mat &img2, vector<Point2f> t1, vector<Point2f> t2)
 {
     // Find bounding rectangle for each triangle
-    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "beginning checkwarp");
+//    __android_log_print(ANDROID_LOG_INFO, "checkwarp", "beginning checkwarp");
 
     Rect r1 = boundingRect(t1);
     Rect r2 = boundingRect(t2);
@@ -275,7 +275,8 @@ void constrainPoint(Point2f &p, Size sz)
 
 }
 
-//vector<Point2f> vectoriseLandmarks(jfloat landmarks[]){
+//old function
+// vector<Point2f> vectoriseLandmarks(jfloat landmarks[]){
 //    vector<Point2f> lm;
 //    for (int i=0;i<=134;i+=2) {
 //        lm.push_back(Point2f(landmarks[i],landmarks[i+1]));
@@ -283,7 +284,7 @@ void constrainPoint(Point2f &p, Size sz)
 //    return lm;
 //}
 
-
+/* //old function, we are trying out the source code as it is.
 void process(cv::Mat img, vector<Point2f> landmarksVec){
     int w=400;
     int h=400;
@@ -401,20 +402,25 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
     output = output + newerimg;
 
 }
+*/
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPointsToNative(JNIEnv* env, jobject self, jfloatArray input, jlong im){
 
     jfloat* landmarkPoint=env->GetFloatArrayElements(input,0);
     cv::Mat& src=*(cv::Mat *) im;
-    __android_log_print(ANDROID_LOG_INFO, "newnew", "the points are %f %f",landmarkPoint[0],landmarkPoint[1]);
+//    __android_log_print(ANDROID_LOG_INFO, "newnew", "the points are %f %f",landmarkPoint[0],landmarkPoint[1]);
 
     vector<Point2f> landmarksVec;
     for (int i=0;i<=134;i+=2) {
         landmarksVec.push_back(Point2f(landmarkPoint[i],landmarkPoint[i+1]));
     }
+    __android_log_print(ANDROID_LOG_INFO, "checkfinally", "the points are %f %f",landmarksVec[0].x,landmarksVec[1]);
+    __android_log_print(ANDROID_LOG_INFO, "checkfinally", "the points are %f %f",landmarksVec[45].x,landmarksVec[45]);
+    __android_log_print(ANDROID_LOG_INFO, "checkfinally", "the points are %f %f",landmarksVec[68].x,landmarksVec[68]);
 
-        __android_log_write(ANDROID_LOG_ERROR, "checkvec", "____Landmarks vectorised_____");
+
+    __android_log_write(ANDROID_LOG_ERROR, "checkvec", "____Landmarks vectorised_____");
 //        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[0].x,landmarksVec[0].y );
 //        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[1].x,landmarksVec[1].y );
 //        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[45].x,landmarksVec[45].y );
@@ -580,7 +586,7 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
     }
 
     // Divide by numImages to get average
-    src = output / (double)numImages;
+    output = output / (double)numImages;
     __android_log_write(ANDROID_LOG_ERROR, "newtry", "Complete Processing Done");
 
 }
