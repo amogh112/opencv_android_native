@@ -11,6 +11,7 @@ import android.graphics.Rect;
 import android.graphics.Bitmap;
 import android.widget.TextView;
 
+//import org.opencv.imww
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
@@ -22,6 +23,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import com.tzutalin.dlib.Constants;  //amogh added for dlib
 import com.tzutalin.dlib.FaceDet; //amogh added for dlib
@@ -100,15 +102,15 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
 
         Mat tmp = inputFrame.rgba();
         //Drawing a Circle(just to debug)
-        Imgproc.circle (
-                tmp,                 //Matrix obj of the image
-                new Point(10, 10),    //Center of the circle
-                10,                    //Radius
-                new Scalar(0, 0, 255),  //Scalar object for color
-                10                      //Thickness of the circle
-        );
-        Log.d("check", String.valueOf(tmp.cols()));
-        Log.d("check", String.valueOf(tmp.rows()));
+//        Imgproc.circle (
+//                tmp,                 //Matrix obj of the image
+//                new Point(10, 10),    //Center of the circle
+//                10,                    //Radius
+//                new Scalar(0, 0, 255),  //Scalar object for color
+//                10                      //Thickness of the circle
+//        );
+//        Log.d("check", String.valueOf(tmp.cols()));
+//        Log.d("check", String.valueOf(tmp.rows()));
 
         Bitmap bmp = null;
         try {
@@ -131,11 +133,11 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
 
 
         List<VisionDetRet> results;
-        long startTime = System.currentTimeMillis();
+//        long startTime = System.currentTimeMillis();
         synchronized (OpenCVCamera.this) {
             results = mFaceDet.detect(bmp);
         }
-        long endTime = System.currentTimeMillis();
+//        long endTime = System.currentTimeMillis();
         if (results != null) {
             //saving landmarks and image frames
             String fname = "Image-" + (frameNo) + ".jpg";
@@ -204,8 +206,37 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                transferPointsToNative(arrayToNative,tmp.getNativeObjAddr());
+//                File file = new File(myDir, fname);
+                Log.d("checkfile",file.getAbsolutePath());
+                Mat tmp2= Imgcodecs.imread(file.getAbsolutePath());
+                Log.d("checkfile",tmp2.size().toString());
+
+                transferPointsToNative(arrayToNative,tmp2.getNativeObjAddr());
 //                Log.d("Exception", "_______face found_____left___"+String.valueOf(bounds.left)+"_____right_____"+String.valueOf(bounds.right));
+                String fnamefinal = "Image-new" + (frameNo) + ".jpg";
+                File file3 = new File(myDir, fnamefinal);
+                Bitmap bmp2 = null;
+                try {
+                    //Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_RGB2BGRA);
+//            Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_GRAY2RGBA, 4);
+                    bmp2 = Bitmap.createBitmap(tmp2.cols(), tmp2.rows(), Bitmap.Config.ARGB_8888);
+                    Utils.matToBitmap(tmp2, bmp2);
+                } catch (CvException e) {
+                    Log.d("Exception", e.getMessage());
+                }
+                Log.d("checkfile","bitmap 2 has been created "+Integer.toString(bmp2.getHeight())+"   "+Integer.toString(bmp2.getWidth()));
+
+//                try {
+//                    FileOutputStream out2 = new FileOutputStream(file3);
+//                    bmp2.compress(Bitmap.CompressFormat.JPEG, 90, out2);
+////                    out2.flush();
+////                    out2.close();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+                Imgcodecs.imwrite(file3.getAbsolutePath(),tmp2);
+
+
             }
         }
         frameNo++;
