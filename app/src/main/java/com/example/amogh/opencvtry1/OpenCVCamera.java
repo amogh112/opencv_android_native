@@ -99,7 +99,7 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
     int frameNo=0;
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
-
+        Log.d("checkfinal","this is the final check for frame no: "+Integer.toString(frameNo));
         Mat tmp = inputFrame.rgba();
         //Drawing a Circle(just to debug)
 //        Imgproc.circle (
@@ -213,18 +213,18 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
 
                 transferPointsToNative(arrayToNative,tmp2.getNativeObjAddr());
 //                Log.d("Exception", "_______face found_____left___"+String.valueOf(bounds.left)+"_____right_____"+String.valueOf(bounds.right));
-                String fnamefinal = "Image-new" + (frameNo) + ".jpg";
-                File file3 = new File(myDir, fnamefinal);
-                Bitmap bmp2 = null;
-                try {
-                    //Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_RGB2BGRA);
-//            Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_GRAY2RGBA, 4);
-                    bmp2 = Bitmap.createBitmap(tmp2.cols(), tmp2.rows(), Bitmap.Config.ARGB_8888);
-                    Utils.matToBitmap(tmp2, bmp2);
-                } catch (CvException e) {
-                    Log.d("Exception", e.getMessage());
-                }
-                Log.d("checkfile","bitmap 2 has been created "+Integer.toString(bmp2.getHeight())+"   "+Integer.toString(bmp2.getWidth()));
+//                String fnamefinal = "Image-new" + (frameNo) + ".jpg";
+//                File file3 = new File(myDir, fnamefinal);
+//                Bitmap bmp2 = null;
+//                try {
+//                    //Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_RGB2BGRA);
+////            Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_GRAY2RGBA, 4);
+//                    bmp2 = Bitmap.createBitmap(tmp2.cols(), tmp2.rows(), Bitmap.Config.ARGB_8888);
+//                    Utils.matToBitmap(tmp2, bmp2);
+//                } catch (CvException e) {
+//                    Log.d("Exception", e.getMessage());
+//                }
+//                Log.d("checkfile","bitmap 2 has been created "+Integer.toString(bmp2.getHeight())+"   "+Integer.toString(bmp2.getWidth()));
 
 //                try {
 //                    FileOutputStream out2 = new FileOutputStream(file3);
@@ -234,7 +234,7 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
 //                } catch (Exception e) {
 //                    e.printStackTrace();
 //                }
-                Imgcodecs.imwrite(file3.getAbsolutePath(),tmp2);
+//                Imgcodecs.imwrite(file3.getAbsolutePath(),tmp2);
 
 
             }

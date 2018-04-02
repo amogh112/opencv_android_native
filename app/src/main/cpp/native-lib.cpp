@@ -148,14 +148,10 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
 //    __android_log_write(ANDROID_LOG_ERROR, "newtry", "Inside calcDelaunayTriangle, subdiv2d initiated");
 
     // Insert points into subdiv
-    for( vector<Point2f>::iterator it = points.begin(); it != points.end(); it++) {
+    for( vector<Point2f>::iterator it = points.begin(); it != points.end(); it++)
         subdiv.insert(*it);
 //        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "the points are %f %f", (*it).x,
 //                            (*it).y);
-    }
-
-//    __android_log_write(ANDROID_LOG_ERROR, "newtry", "inserted! inside delaunaytriangle");
-
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
     vector<Point2f> pt(3);
@@ -415,9 +411,9 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
     for (int i=0;i<=134;i+=2) {
         landmarksVec.push_back(Point2f(landmarkPoint[i],landmarkPoint[i+1]));
     }
-    __android_log_print(ANDROID_LOG_INFO, "checkfinally", "the points are %f %f",landmarksVec[0].x,landmarksVec[1]);
-    __android_log_print(ANDROID_LOG_INFO, "checkfinally", "the points are %f %f",landmarksVec[45].x,landmarksVec[45]);
-    __android_log_print(ANDROID_LOG_INFO, "checkfinally", "the points are %f %f",landmarksVec[68].x,landmarksVec[68]);
+//    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the points are %f %f",landmarksVec[0].x,landmarksVec[1].y);
+//    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the points are %f %f",landmarksVec[45].x,landmarksVec[45].y);
+//    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the points are %f %f",landmarksVec[68].x,landmarksVec[68].y);
 
 
     __android_log_write(ANDROID_LOG_ERROR, "checkvec", "____Landmarks vectorised_____");
@@ -443,6 +439,11 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
     vector<vector<Point2f> > allPoints;
 //    readPoints(ptsNames, allPoints);
     allPoints.push_back(landmarksVec);
+    //debug point
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the points are %f %f",allPoints[0][0].x,allPoints[0][0].y);
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the points are %f %f",allPoints[0][45].x,allPoints[0][45].y);
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the points are %f %f",allPoints[0][67].x,allPoints[0][67].y);
+
     int n = allPoints[0].size();
 
     // Read images
@@ -537,6 +538,11 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
 
 
     }
+    //debug point
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the normalised points are %f %f",pointsNorm[0][0].x,pointsNorm[0][0].y);
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the normalised points are %f %f",pointsNorm[0][45].x,pointsNorm[0][45].y);
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the normalised points are %f %f",pointsNorm[0][67].x,pointsNorm[0][67].y);
+
 
     // Append boundary points to average points.
     for ( size_t j = 0; j < boundaryPts.size(); j++)
@@ -550,6 +556,18 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
     Rect rect(0, 0, w, h);
     vector< vector<int> > dt;
     calculateDelaunayTriangles(rect, pointsAvg, dt);
+
+    //debug point
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the triangle points are %d %d",(dt[0][0]),(dt[0][0]));
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the triangle points are %d %d",(dt[0][1]),(dt[0][1]));
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the triangle points are %d %d",(dt[0][2]),(dt[0][2]));
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the triangle points are %d %d",(dt[45][0]),(dt[45][0]));
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the triangle points are %d %d",(dt[45][1]),(dt[45][1]));
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the triangle points are %d %d",(dt[45][2]),(dt[45][2]));
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the triangle points are %d %d",(dt[67][0]),(dt[67][0]));
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the triangle points are %d %d",(dt[67][1]),(dt[67][1]));
+    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the triangle points are %d %d",(dt[67][2]),(dt[67][2]));
+
 
     // Space for output image
     Mat output = Mat::zeros(h, w, CV_32FC3);
@@ -578,9 +596,12 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
             }
             warpTriangle(imagesNorm[i], img, tin, tout);
         }
+        __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the final points are %f %f %f %f ",img.at<Vec3f>(Point(4,5))[0],img.at<Vec3f>(Point(110,110))[0],img.at<Vec3f>(Point(50,45))[1],img.at<Vec3f>(Point(30,100))[2]);
 
         // Add image intensities for averaging
         output = output + img;
+        __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the final points are %f %f %f %f ",output.at<Vec3f>(Point(4,5))[0],output.at<Vec3f>(Point(110,110))[0],output.at<Vec3f>(Point(50,45))[1],output.at<Vec3f>(Point(30,100))[2]);
+
         __android_log_write(ANDROID_LOG_ERROR, "checkwarp", "warped and added ");
 
     }
