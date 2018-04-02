@@ -608,6 +608,10 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
 
     // Divide by numImages to get average
     output = output / (double)numImages;
+//    Size size2=output.size();
+//    HOGDescriptor hog(size2,Size(8,8),Size(4,4),Size(2,2),9,1,-1,0,0.2,0,64,1);
+//    vector<float> descriptors;
+//    hog.compute(src,descriptors);
     __android_log_write(ANDROID_LOG_ERROR, "newtry", "Complete Processing Done");
 
 }
