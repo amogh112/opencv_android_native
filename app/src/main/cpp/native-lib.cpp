@@ -11,7 +11,6 @@
 #include<sstream>
 using namespace std;
 using namespace cv;
-
 extern "C"
 JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_detectEdges(JNIEnv*, jobject, jlong gray){
     cv::Mat& edges= *(cv::Mat *) gray;
@@ -24,15 +23,15 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_detectEdg
 extern "C"
 JNIEXPORT jfloatArray JNICALL Java_com_example_amogh_opencvtry1_EdgeDetection_hogOutput(JNIEnv* env, jobject, jlong gray){
 //    cv::Mat& edges= *(cv::Mat *) gray;
-    cv::Mat& src=*(cv::Mat *) gray; //this is not assigning the address, it means that src is an alias of the cv::Mat to which gray points (*gray.)
+    Mat& src=*(cv::Mat *) gray; //this is not assigning the address, it means that src is an alias of the cv::Mat to which gray points (*gray.)
 //    cv::cvtColor(src,src,CV_RGBA2RGB);
-    cv::Size size=src.size();
+    Size size=src.size();
 //    cv::Size smallSize;
 //    smallSize.width=100;
 //    smallSize.height=size.height/4;
 //    cv::Mat smallImg=cv::Mat(smallSize, CV_8UC3);
-    cv::HOGDescriptor hog(size,cv::Size(8,8),cv::Size(4,4),cv::Size(8,8),9,1,-1,0,0.2,0,64,1);
-    std::vector<float> descriptors;
+    HOGDescriptor hog(size,cv::Size(8,8),cv::Size(4,4),cv::Size(8,8),9,1,-1,0,0.2,0,64,1);
+    vector<float> descriptors;
     hog.compute(src,descriptors);
     int desc_size=descriptors.size();
     jfloatArray result=env->NewFloatArray(desc_size);
@@ -145,18 +144,18 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
 
     // Create an instance of Subdiv2D
     Subdiv2D subdiv(rect);
-//    __android_log_write(ANDROID_LOG_ERROR, "newtry", "Inside calcDelaunayTriangle, subdiv2d initiated");
+    __android_log_write(ANDROID_LOG_ERROR, "checkdelaunay", "Inside calcDelaunayTriangle, subdiv2d initiated");
 
     // Insert points into subdiv
-    for( vector<Point2f>::iterator it = points.begin(); it != points.end(); it++)
+    for( vector<Point2f>::iterator it = points.begin(); it != points.end(); it++){
         subdiv.insert(*it);
-//        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "the points are %f %f", (*it).x,
-//                            (*it).y);
+        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "the points are %f %f", (*it).x,
+                            (*it).y);}
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
     vector<Point2f> pt(3);
     vector<int> ind(3);
-//    __android_log_write(ANDROID_LOG_ERROR, "newtry", "going inside theloop");
+    __android_log_write(ANDROID_LOG_ERROR, "checkdelaunay", "going inside the loop");
 
     for( size_t i = 0; i < triangleList.size(); i++ )
     {
@@ -164,7 +163,7 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
         pt[0] = Point2f(t[0], t[1]);
         pt[1] = Point2f(t[2], t[3]);
         pt[2] = Point2f(t[4], t[5 ]);
-//        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "there are %d triangles the points of triangle are: %f %f %f %f %f %f",triangleList.size(),t[0],t[1],t[2],t[3],t[4],t[5]);
+        __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "there are %d triangles the points of triangle are: %f %f %f %f %f %f",triangleList.size(),t[0],t[1],t[2],t[3],t[4],t[5]);
 
 
         if ( rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2])){
@@ -172,9 +171,9 @@ static void calculateDelaunayTriangles(Rect rect, vector<Point2f> &points, vecto
                 for(size_t k = 0; k < points.size(); k++)
                     if(abs(pt[j].x - points[k].x) < 1.0 && abs(pt[j].y - points[k].y) < 1)
                         ind[j] = k; //basically the index of nearest landmark
-//            __android_log_print(ANDROID_LOG_INFO, "newnew", "found true %d", i);
+//            __android_log_print(ANDROID_LOG_INFO, "newnew", "found truet %d", i);
 
-//            __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "landmarks forming triangle: %f %f %f",ind[0],ind[1],ind[1]);
+            __android_log_print(ANDROID_LOG_INFO, "checkdelaunay", "landmarks forming triangle: %d %d %d",ind[0],ind[1],ind[1]);
 
             delaunayTri.push_back(ind);// delaunayTri(vector<vector<int>>)
         }
@@ -549,9 +548,12 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
     {
         pointsAvg.push_back(boundaryPts[j]);
     }
-
-
-
+    //pushing average points
+    float avgLandmarkPoint[]={19.982,37.762,20.220,46.945,21.262,55.963,22.500,65.110,25.268,74.055,30.317,82.012,36.878,88.921,44.220,94.616,52.994,96.524,61.951,95.024,69.689,89.811,76.976,83.457,83.207,75.774,87.061,66.884,89.354,57.433,91.146,48.091,92.409,38.512,25.555,33.061,29.470,28.037,35.933,25.860,42.750,26.445,49.116,28.787,61.915,28.659,68.494,26.433,75.299,25.805,81.854,27.957,85.896,32.774,54.982,35.415,54.567,41.585,54.232,47.902,53.848,54.476,47.335,58.390,50.518,59.274,53.872,60.280,57.518,59.372,60.927,58.470,33.000,37.000,37.061,35.146,41.720,35.037,46.079,37.518,41.622,38.207,37.030,38.360,64.805,37.268,68.970,34.854,73.762,34.988,78.000,37.000,73.841,38.195,69.244,38.146,38.841,68.500,44.152,66.884,49.756,65.732,53.591,66.701,57.530,65.909,63.500,67.238,69.494,68.750,63.537,74.738,57.616,77.537,53.421,78.073,49.195,77.488,43.848,74.634,40.878,69.104,49.591,69.067,53.524,69.591,57.506,69.232,67.274,69.317,57.567,72.274,53.494,72.848,49.518,72.183,0.000,0.000,56.000,0.000,111.000,0.000,111.000,56.000,111.000,111.000,56.000,111.000,0.000,111.000,0.000,56.000};
+    pointsAvg.clear();
+    for(int i=0; i<=150 ; i+=2) {
+        pointsAvg.push_back(Point2f(avgLandmarkPoint[i],avgLandmarkPoint[i+1]));
+    }
     // Calculate Delaunay triangles
     Rect rect(0, 0, w, h);
     vector< vector<int> > dt;
@@ -596,18 +598,20 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
             }
             warpTriangle(imagesNorm[i], img, tin, tout);
         }
-        __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the final points are %f %f %f %f ",img.at<Vec3f>(Point(4,5))[0],img.at<Vec3f>(Point(110,110))[0],img.at<Vec3f>(Point(50,45))[1],img.at<Vec3f>(Point(30,100))[2]);
+//        __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the final points are %f %f %f %f ",img.at<Vec3f>(Point(4,5))[0],img.at<Vec3f>(Point(110,110))[0],img.at<Vec3f>(Point(50,45))[1],img.at<Vec3f>(Point(30,100))[2]);
 
         // Add image intensities for averaging
         output = output + img;
-        __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the final points are %f %f %f %f ",output.at<Vec3f>(Point(4,5))[0],output.at<Vec3f>(Point(110,110))[0],output.at<Vec3f>(Point(50,45))[1],output.at<Vec3f>(Point(30,100))[2]);
+//        __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the final points are %f %f %f %f ",output.at<Vec3f>(Point(4,5))[0],output.at<Vec3f>(Point(110,110))[0],output.at<Vec3f>(Point(50,45))[1],output.at<Vec3f>(Point(30,100))[2]);
 
-        __android_log_write(ANDROID_LOG_ERROR, "checkwarp", "warped and added ");
+//        __android_log_write(ANDROID_LOG_ERROR, "checkwarp", "warped and added ");
 
     }
-
+//    cv::HOGDescriptor hog(size,cv::Size(8,8),cv::Size(4,4),cv::Size(8,8),9,1,-1,0,0.2,0,64,1);
+//    std::vector<float> descriptors;
+//    hog.compute(output,descriptors);
     // Divide by numImages to get average
-    output = output / (double)numImages;
+//    output = output / (double)numImages;
 //    Size size2=output.size();
 //    HOGDescriptor hog(size2,Size(8,8),Size(4,4),Size(2,2),9,1,-1,0,0.2,0,64,1);
 //    vector<float> descriptors;

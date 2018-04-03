@@ -16,19 +16,16 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
 import org.opencv.core.CvException;
 import org.opencv.core.Mat;
 import org.opencv.android.Utils;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import com.tzutalin.dlib.Constants;  //amogh added for dlib
 import com.tzutalin.dlib.FaceDet; //amogh added for dlib
 import com.tzutalin.dlib.VisionDetRet; //amogh added for dlib
-//import org.opencv.features2d.res
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,7 +43,7 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
     private CameraBridgeViewBase cameraBridgeViewBase;
     private Context mContext;
     private FaceDet mFaceDet;
-
+//    private Handler mInferenceHandler;
     private BaseLoaderCallback baseLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
