@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceView;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -89,6 +88,7 @@ public class EdgeDetection extends AppCompatActivity implements CameraBridgeView
         float[] array3;
         //amogh maybe need to define the size
 //        array3=arrayOutput();
+
         array3=hogOutput(edges.getNativeObjAddr());
         Log.d("tag",Float.toString(array3[0])+Float.toString(array3[1999]));
 //        hogOutput(src_im.getNativeObjAddr());

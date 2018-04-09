@@ -13,6 +13,7 @@ cmake_minimum_required(VERSION 3.4.1)
 set(pathToOpenCV E:/CMU/codeDrop1/OpenCV-android-sdk/sdk/native) #amogh added
 include_directories(${pathToOpenCV}/jni/include) #amogh added
 
+
 add_library( # Sets the name of the library.
              native-lib
 
