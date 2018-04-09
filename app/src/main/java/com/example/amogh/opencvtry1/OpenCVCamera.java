@@ -207,11 +207,11 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
                 Log.d("checkfile",file.getAbsolutePath());
                 Mat tmp2= Imgcodecs.imread(file.getAbsolutePath());
                 Log.d("checkfile",tmp2.size().toString());
-
-                transferPointsToNative(arrayToNative,tmp2.getNativeObjAddr());
+                float arrayfinal[];
+                arrayfinal=transferPointsToNative(arrayToNative,tmp2.getNativeObjAddr());
 //                Log.d("Exception", "_______face found_____left___"+String.valueOf(bounds.left)+"_____right_____"+String.valueOf(bounds.right));
-//                String fnamefinal = "Image-new" + (frameNo) + ".jpg";
-//                File file3 = new File(myDir, fnamefinal);
+                String fnamefinal = "Image-new" + (frameNo) + ".jpg";
+                File file3 = new File(myDir, fnamefinal);
 //                Bitmap bmp2 = null;
 //                try {
 //                    //Imgproc.cvtColor(seedsImage, tmp, Imgproc.COLOR_RGB2BGRA);
@@ -231,7 +231,7 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
 //                } catch (Exception e) {
 //                    e.printStackTrace();
 //                }
-//                Imgcodecs.imwrite(file3.getAbsolutePath(),tmp2);
+                Imgcodecs.imwrite(file3.getAbsolutePath(),tmp2);
 
 
             }
@@ -241,7 +241,7 @@ public class OpenCVCamera extends AppCompatActivity implements CameraBridgeViewB
 //        Imgproc.resize(tmp,dst, new Size(112,112));
         return tmp;
     }
-    public native void transferPointsToNative(float[] input, long im);
+    public native float[] transferPointsToNative(float[] input, long im);
 }
 
 

@@ -400,7 +400,7 @@ void process(cv::Mat img, vector<Point2f> landmarksVec){
 */
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPointsToNative(JNIEnv* env, jobject self, jfloatArray input, jlong im){
+JNIEXPORT jfloatArray JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPointsToNative(JNIEnv* env, jobject self, jfloatArray input, jlong im){
 
     jfloat* landmarkPoint=env->GetFloatArrayElements(input,0);
     cv::Mat& src=*(cv::Mat *) im;
@@ -411,32 +411,14 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
         landmarksVec.push_back(Point2f(landmarkPoint[i],landmarkPoint[i+1]));
     }
 //    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the points are %f %f",landmarksVec[0].x,landmarksVec[1].y);
-//    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the points are %f %f",landmarksVec[45].x,landmarksVec[45].y);
-//    __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the points are %f %f",landmarksVec[68].x,landmarksVec[68].y);
-
-
     __android_log_write(ANDROID_LOG_ERROR, "checkvec", "____Landmarks vectorised_____");
 //        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[0].x,landmarksVec[0].y );
-//        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[1].x,landmarksVec[1].y );
-//        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[45].x,landmarksVec[45].y );
-//        __android_log_print(ANDROID_LOG_INFO, "checkvec", "the points are %f %f",landmarksVec[66].x,landmarksVec[66].y );
 
-//    process(src,landmarksVec);
     //source code begins
     int w = 112;
     int h = 112;
-
-    // Read images in the directory
     vector<string> imageNames, ptsNames;
-//    readFileNames(dirName, imageNames, ptsNames);
-
-    // Exit program if no images or pts are found or if the number of image files does not match with the number of point files
-//    if(imageNames.empty() || ptsNames.empty() || imageNames.size() != ptsNames.size())
-//        exit(EXIT_FAILURE);
-
-    // Read points
     vector<vector<Point2f> > allPoints;
-//    readPoints(ptsNames, allPoints);
     allPoints.push_back(landmarksVec);
     //debug point
     __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the points are %f %f",allPoints[0][0].x,allPoints[0][0].y);
@@ -447,22 +429,8 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
 
     // Read images
     vector<Mat> images;
-//    for(size_t i = 0; i < imageNames.size(); i++)
-//    {
-////        Mat img = imread(imageNames[i]);
-//
-//        img.convertTo(img, CV_32FC3, 1/255.0);
-//
-//        if(!img.data)
-//        {
-//            cout << "image " << imageNames[i] << " not read properly" << endl;
-//        }
-//        else
-//        {
-//            images.push_back(img);
-//        }
-//    }
     src.convertTo(src,CV_32FC3,1/255.0);
+
     images.push_back(src);
     if(images.empty())
     {
@@ -598,18 +566,63 @@ JNIEXPORT void JNICALL Java_com_example_amogh_opencvtry1_OpenCVCamera_transferPo
             }
             warpTriangle(imagesNorm[i], img, tin, tout);
         }
-//        __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the final points are %f %f %f %f ",img.at<Vec3f>(Point(4,5))[0],img.at<Vec3f>(Point(110,110))[0],img.at<Vec3f>(Point(50,45))[1],img.at<Vec3f>(Point(30,100))[2]);
 
         // Add image intensities for averaging
         output = output + img;
-//        __android_log_print(ANDROID_LOG_INFO, "checkfinal", "the final points are %f %f %f %f ",output.at<Vec3f>(Point(4,5))[0],output.at<Vec3f>(Point(110,110))[0],output.at<Vec3f>(Point(50,45))[1],output.at<Vec3f>(Point(30,100))[2]);
+    }
 
-//        __android_log_write(ANDROID_LOG_ERROR, "checkwarp", "warped and added ");
+    //masking code below
+    vector<Point> landmarks_for_mask;
+    for (int j=0;j<=16;j++)
+    {
+        // cout<<endl<<"pushing ___"<<pointsNorm[0][j].x;
+        // cout<<endl<<"pushing ___"<<pointsNorm[0][j].y;
+        landmarks_for_mask.push_back(Point((int)pointsNorm[0][j].x,(int)pointsNorm[0][j].y));
+    }
+    for (int j=26;j>=17;j--)
+    {
+        // cout<<endl<<"pushing ___"<<pointsNorm[0][j].x;
+        // cout<<endl<<"pushing ___"<<pointsNorm[0][j].y;
+        // landmarks_for_mask.push_back(pointsNorm[0][j]);
+        landmarks_for_mask.push_back(Point((int)pointsNorm[0][j].x,(int)pointsNorm[0][j].y));
 
     }
-//    cv::HOGDescriptor hog(size,cv::Size(8,8),cv::Size(4,4),cv::Size(8,8),9,1,-1,0,0.2,0,64,1);
-//    std::vector<float> descriptors;
-//    hog.compute(output,descriptors);
+    Mat mask = Mat::zeros(output.size().height, output.size().width, CV_32FC3);
+    fillConvexPoly(mask, landmarks_for_mask, Scalar(1.0, 1.0, 1.0), 16, 0);
+    multiply(output,mask,output);
+
+    __android_log_write(ANDROID_LOG_ERROR, "checkfinal", "before defining");
+    Mat hogOutput;
+    output.convertTo(hogOutput, CV_8UC3, 255);
+    Size size2=output.size();
+    HOGDescriptor hog(size2,cv::Size(16,16),cv::Size(8,8),cv::Size(8,8),9,1,-1,0,0.2,0,64,1);
+    vector<float> descriptors;
+    hog.compute(hogOutput,descriptors);
+    __android_log_write(ANDROID_LOG_ERROR, "checkfinal", "Going to compute");
+
+    src=hogOutput;
+//saving the HOG descriptor
+    int desc_size=descriptors.size();
+    jfloatArray result=env->NewFloatArray(desc_size);
+    if(result==NULL){
+        return NULL; //out of memory thrown
+    }
+    jfloat array2[desc_size];
+    for(int i=0;i<2000;i++){
+        array2[i]=descriptors[i];
+    }
+
+    env->SetFloatArrayRegion(result,0,2000,array2);
+    __android_log_write(ANDROID_LOG_ERROR, "checkfinal", "Array written");
+
+//    jfloat array1[3];
+//    array1[0]=(float)desc_size;
+//    array1[1]=3.0f;
+//    array1[2]=4.0f;
+//    env->SetFloatArrayRegion(result,0,3,array1);
+    return result;
+
+
     // Divide by numImages to get average
 //    output = output / (double)numImages;
 //    Size size2=output.size();
